@@ -9,22 +9,37 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+GWAS Function: takes the phenotype, genotype, and covariate data, calculates PCA, calculates colinearity of PC's w/ covariates, constructs GLM equation, applys GLM equation over every SNP, reutrns p-values for association tests
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+Values
+  n = number of individuals (samples)
+  m = number of markers
+  t = number of covariates
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+List of Functions
+- Function that checks inputs for correct class and dimensions
+  - inputs include phenotype (nx1), genotype (nxm), and covariate data (nxt)
+  - class of all objects probably needs to be matrix or data frame
+  - allows function to proceed or halts function and stops error code
+  
+- Function that performs PCA on genotype data
+  - are there other cofactors we can calculate from genotype data that could increase our accuracy?
+  - do we want to use existing PCA functions or write our own?
+  - returns PC in ?x? (probably nx1)
+  
+- Function that calculates colinearity of PC's with covariates
+  - calculates colinearity of x number of PCs against x number of covariates
+  - what existing function do we want to use to create this matrix?
+  - opportunity for extra user input, some sort of colinearity threshold (max correlation value)
+  - returns filtered PCs
+  
+- Function that constructs the GLM equation with all covariates
+  - y = SNP + b1X1 ... bnXn + e
+  - another opportunity to build in a check point that double checks the equation for fatal errors?
+  
+- Function that applyes GLM equation over all SNPs
+  - returns p-value matrix (1xm)
+  
+Other Thoughts
+- do we want to include the option for the equation to automatically generate a GWAS plot? Fancy!
+- Where are residuals calculated?
