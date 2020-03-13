@@ -1,0 +1,95 @@
+---
+title: "Functions for GWAS by GLM"
+author: "William Crump"
+date: "3/13/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+###Functions
+
+#####GWAS.by.GLM   
+	**Input:**   
+		phenotypic.data (n x 1)  
+		genotypic.data (n x m)  
+		covariate.data (n x c) (optional)  
+		number of PCs desired as covariates (in addition to those provided by user--if any) (p)  
+		
+	**Processes:**  
+		1. Take genotypic data and create PCs (n x n) using **make.PCA** function  
+		2. Filter each PC (from (n x p) matrix) by its colinearity with the user-supplied covariate data (n x c) using **filter.PCA** function 
+		3. Perform the GWAS by GLM using **perform.GWAS.GLM** (using code from Zhiwu's GLM lecture)
+		
+	**Output:**
+		vector of p-values (m x 1)
+		
+#####make.PCA
+	**Input:**
+		genotypic.data (n x m)
+		
+	**Processes:**
+		1. Perform PCA using prcomp() function
+		
+	**Output:**
+		Matrix (n x n) of PCs
+		
+#####filter.PCA
+	**Input:**
+		Matrix (n x n) of PCs
+		Vector/matrix/df (n x c) of user-supplied covariates
+		colinearity threshold (t)
+		
+	**Processes:**
+		1. Takes each PC (column) and determines colinearity (correlation?) with each column from user-supplied covariates,
+			a. If colinearity threshold (t) is met, collect that PC index
+		2. Filter out the PCs above a colinearity threshold (t)
+		
+	**Output:**
+		Filtered matrix of PCs (n x ?)
+		
+#####perform.GWAS.GLM
+	**Input:**
+		genotypic.data (n x m)
+		phenotypic.data (n x 1)
+		covariate.data supplied by user (n x c)
+		filtered PCs (n x ?)
+		number of PCs desired as covariates (in addition to those provided by user--if any) (p) 
+		genotypic.mean (1)
+		
+	**Processes:**
+		Taken from lecture slides, tweaked slightly where **bolded**:
+		
+		G=**genotypic.data[,-1]**
+		**y=phenotypic.data**
+		n=nrow(G)
+		m=ncol(G)
+		P=matrix(NA,1,m)
+		for (i in 1:m){
+			x=G[,i]
+			if(max(x)==min(x)){
+				p=1}
+			else{
+				X=cbind(1, **user.covs**, **PCA$x[,1:p]**, x)
+				LHS=t(X)%*%X
+				C=solve(LHS)
+				RHS=t(X)%*%y
+				b=C%*%RHS
+				yb=X%*%b
+				e=y-yb
+				n=length(y)
+				ve=sum(e^2)/(n-1)
+				vt=C*ve
+				t=b/sqrt(diag(vt))
+				p=2*(1-pt(abs(t),n-2))
+				} #end of testing variation
+			P[i]=p[length(p)]
+		} 
+		
+	**Output:**
+		Vector of p-values (m x 1) for each marker
+		
+			
