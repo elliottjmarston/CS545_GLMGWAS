@@ -1,6 +1,7 @@
 #' Perform Principle Component Analysis
 #'
-#'@param gen.data A numeric genotype matrix (rows = taxa, columns = markers).
+#' @param gen.data A numeric genotype matrix (rows = taxa, columns = markers).
+#' @return A large prcomp ($sdev, $rotation, $center, $scale, $x)
 
 library(tidyverse)
 make.pca <- function(gen.data){

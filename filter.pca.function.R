@@ -1,7 +1,9 @@
 #' Filter out PCs colinear with other covariates. 
 #'
-#'@param PCA The output list from the prcomp() function. 
-#'@param covs A matrix/data.frame of covariates (rows = individuals, columns = covariates)
+#' @param PCA The output list from the prcomp() function. 
+#' @param covs A matrix/data.frame of covariates (rows = individuals, columns = covariates)
+#' @return A matrix of filtered PCs (not correlated with any covariates supplied by user)
+
 
 library(tidyverse)
 
