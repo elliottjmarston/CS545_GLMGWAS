@@ -4,12 +4,20 @@
 #' @param pheno A matrix of phenotype data with dimensions n x 1
 #' @param covariates A matrix of covariate data with dimensions n x t
 #' @param PCs A matrix of principle components with dimensions n x ? (variable number of PCs)
+#' @param thresh A numeric (0-1) indicating the correlation value of any PC-covariate pair at which the PC will be exluded from model
+#' @return A vector (?) of p values of length m
 
-GLM.func <- function(geno = NULL, pheno = NULL, covariates = NULL, PCs = NULL){
+GLM.func <- function(geno = NULL, pheno = NULL, covariates = NULL, PCs = 1, thresh = 0.2){
 	working.geno <- geno[,-1] #pull user input into genotype matrix, possible data transformation?
 	working.pheno <- pheno[,-1] #pull user input into phenotype matrix
 	working.cov <- covariates[,-1] #pull user input into covariate matrix
 	working.PCs <- PCs #pull in user-defined number of PCs into PC matrix
+	working.thresh <- thresh #pull in user-defined correlation threshold between any given PC-covariate pair
+	
+	#source("filter.pca.function.R") we don't need to call this when everything is in package correct?
+	PCA <- prcomp(working.geno) #perform PCA on the genotypes
+	filtered.PCs <- filter.pca(PCA = PCA, covs = working.cov, threshold = working.thresh) #filter PCs by covariates according to correlation threshold supplied by user
+	used.PCs <- filtered.PCs$x[,1:working.PCs]
 	
 	sample.n <- nrow(working.geno) #number of samples in data
 	marker.n <- ncol(working.geno) #number of markers in data
@@ -23,7 +31,7 @@ GLM.func <- function(geno = NULL, pheno = NULL, covariates = NULL, PCs = NULL){
 			p.value = 1
 		}
 		else{
-			coeff.matrix <- as.matrix(cbind(1, working.cov, working.PCs, SNP)) #creates matrix of X values to calculate b on
+			coeff.matrix <- as.matrix(cbind(1, working.cov, used.PCs, SNP)) #creates matrix of X values to calculate b on
 			X.matrix <- t(coeff.matrix)%*%coeff.matrix #creates X^2 multiplication matrix
 			inverse.X <- solve(X.matrix) #creates inverse of X^2 matrix
 			Y.matrix <- t(coeff.matrix)%*%working.pheno #creates X*Y matrix
