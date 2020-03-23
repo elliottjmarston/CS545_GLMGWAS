@@ -9,11 +9,6 @@
 filter.pca <- function(PCA, covs, threshold=0.2){
 	library(tidyverse)
 	
-	# ensure the first column is the first covariate
-	if (class(covs[,1]) != "integer" & class(covs[,1]) != "numeric"){
-		covs <- column_to_rownames(covs, var = colnames(covs[1]))
-	}
-	
 	correlation.matrix <- cor(PCA$x, covs)
 	indices <- apply(correlation.matrix, 2, function(x){x>=threshold})
 	index.vect <- apply(indices, 2, function(x){which(x)})
